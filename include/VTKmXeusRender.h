@@ -22,34 +22,43 @@ public:
 
     }
 
+	static 
     void SetCamera(vtkm::rendering::Camera& camera,
-                    const vtkm::Bounds& coordBounds,
-                    const vtkm::cont::Field&)
-{
+                    const vtkm::Bounds& coordBounds)
+ 	{
         camera = vtkm::rendering::Camera();
         camera.ResetToBounds(coordBounds);
         camera.Azimuth(static_cast<vtkm::Float32>(45.0));
         camera.Elevation(static_cast<vtkm::Float32>(45.0));
+
+	}
+	static
+    void SetCamera(vtkm::rendering::Camera& camera,
+                    const vtkm::Bounds& coordBounds,
+                    const vtkm::cont::Field&) 
+	{
+		VTKmXeusRender::SetCamera(camera, coordBounds);
     }
 
     template <typename ViewType>
-    void Render(ViewType& view)
+	static
+    void Render(ViewType& view) 
     {
-    view.Initialize();
-    view.Paint();
+	    view.Initialize();
+    	view.Paint();
     }
 
     template<typename MapperType, 
-            typename CanvasType,
-            typename ViewType>
+            typename CanvasType>
     void Render(vtkm::cont::DataSet &ds,
                 MapperType &mapper,
                 CanvasType &canvas,
                 vtkm::cont::ColorTable &colorTable,
-                std::unique_ptr<im::image> &displayImage)
+                std::string &fieldNm)
     {
+        using V3 = vtkm::rendering::View3D;
+
         vtkm::rendering::Scene scene;
-        static std::string fieldNm = "pointvar";
 
         scene.AddActor(vtkm::rendering::Actor(
         ds.GetCellSet(), ds.GetCoordinateSystem(), ds.GetField(fieldNm), colorTable));
@@ -57,7 +66,7 @@ public:
         SetCamera(camera, ds.GetCoordinateSystem().GetBounds(), ds.GetField(fieldNm));
         vtkm::rendering::Color background(0.0f, 1.0f, 1.0f, 1.0f);
         vtkm::rendering::Color foreground(0.0f, 0.0f, 0.0f, 1.0f);
-        ViewType view(scene, mapper, canvas, camera, background, foreground);
+        V3 view(scene, mapper, canvas, camera, background, foreground);
 
         // Print the title
     //     vtkm::rendering::TextAnnotationScreen* titleAnnotation =
@@ -69,30 +78,37 @@ public:
     //     view.AddAnnotation(titleAnnotation);
 
         //render over and over again to the same position on the page
-        Render<ViewType>(view);
+        Render<V3>(view);
+    }
+    template<typename MapperType, 
+            typename CanvasType>
+    void Display(vtkm::cont::DataSet &ds,
+                MapperType &mapper,
+                CanvasType &canvas,
+                vtkm::cont::ColorTable &colorTable,
+                std::string &fieldNm)
+    {
+        Render(ds, mapper, canvas, colorTable, fieldNm);
         auto png = convertPng(canvas);
         displayImage = std::make_unique<im::image>(im::image(png));
         xcpp::display(displayImage, id, !first);        
-
         first = false;
     }
-    void Render(vtkm::cont::DataSet &ds,
-                std::unique_ptr<im::image> &displayImage)
+    void Display(vtkm::cont::DataSet &ds,
+                std::string &fieldNm)
     {
         using M = vtkm::rendering::MapperRayTracer;
         using C = vtkm::rendering::CanvasRayTracer;
-        using V3 = vtkm::rendering::View3D;
 
         vtkm::cont::ColorTable colorTable("inferno");
 
         M mapper;
         C canvas(512, 512);
-        Render<M,C,V3>(ds, mapper, canvas, colorTable, displayImage);
+        Display<M,C>(ds, mapper, canvas, colorTable, fieldNm);
     }
 
     template<typename ArrayType>
-    void Render(ArrayType &array,int width,int height,
-    std::unique_ptr<im::image> &displayImage)
+    void Display(ArrayType &array,int width,int height)
     {
         std::vector<std::uint8_t> png;
         convertPng(array, width, height, png);
@@ -102,6 +118,18 @@ public:
         first = false;        
     }
 
+	template<typename CanvasType> 
+    void Display(CanvasType &canvas)
+    {
+	    auto png = convertPng(canvas);
+
+    	displayImage = std::make_unique<im::image>(png);
+	    xcpp::display(*displayImage, id, !first);
+		first = false;
+
+    }
+
+    std::unique_ptr<im::image> displayImage;
     bool first;
     xeus::xguid id;
 };
