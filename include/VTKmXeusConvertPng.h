@@ -74,13 +74,8 @@ auto convertPng(CanvasType &canvas)
     int width = canvas.GetWidth();
     int height = canvas.GetHeight();
 
-  auto colorArray = canvas.GetColorBuffer();
+    auto colorArray = canvas.GetColorBuffer();
     auto depthArray = canvas.GetDepthBuffer();
-    colorArray.Allocate(colorArray.GetNumberOfValues());
-    for (int i=0; i<colorArray.GetNumberOfValues(); i++){
-        auto d = depthArray.GetPortalConstControl().Get(i);
-        colorArray.GetPortalControl().Set(i, vtkm::Vec<vtkm::Float32,4>(d,d,d,0));
-    }
     std::vector<std::uint8_t> ImageBuffer;
   convertPng(colorArray, width, height, ImageBuffer);
     return ImageBuffer;
