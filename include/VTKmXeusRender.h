@@ -91,7 +91,7 @@ public:
         Render(ds, mapper, canvas, colorTable, fieldNm);
         auto png = convertPng(canvas);
         displayImage = std::make_unique<im::image>(im::image(png));
-        xcpp::display(displayImage, id, !first);        
+        xcpp::display(*displayImage, id, !first);        
         first = false;
     }
     void Display(vtkm::cont::DataSet &ds,
