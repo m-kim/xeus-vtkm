@@ -107,6 +107,19 @@ public:
         Display<M,C>(ds, mapper, canvas, colorTable, fieldNm);
     }
 
+	template<typename CanvasType>	
+    void Display(vtkm::cont::DataSet &ds,
+				CanvasType &canvas,
+                std::string fieldNm)
+    {
+        using M = vtkm::rendering::MapperRayTracer;
+
+        vtkm::cont::ColorTable colorTable("inferno");
+
+        M mapper;
+        Display<M,CanvasType>(ds, mapper, canvas, colorTable, fieldNm);
+    }
+
     template<typename ArrayType>
     void Display(ArrayType &array,int width,int height)
     {
