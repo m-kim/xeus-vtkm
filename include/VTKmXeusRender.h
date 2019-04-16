@@ -54,7 +54,7 @@ public:
                 MapperType &mapper,
                 CanvasType &canvas,
                 vtkm::cont::ColorTable &colorTable,
-                std::string &fieldNm)
+                std::string fieldNm)
     {
         using V3 = vtkm::rendering::View3D;
 
@@ -86,7 +86,7 @@ public:
                 MapperType &mapper,
                 CanvasType &canvas,
                 vtkm::cont::ColorTable &colorTable,
-                std::string &fieldNm)
+                std::string fieldNm)
     {
         Render(ds, mapper, canvas, colorTable, fieldNm);
         auto png = convertPng(canvas);
@@ -95,7 +95,7 @@ public:
         first = false;
     }
     void Display(vtkm::cont::DataSet &ds,
-                std::string &fieldNm)
+                std::string fieldNm)
     {
         using M = vtkm::rendering::MapperRayTracer;
         using C = vtkm::rendering::CanvasRayTracer;
