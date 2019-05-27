@@ -46,6 +46,23 @@ void convertBuffer(std::vector<std::uint8_t> &PngBuffer,
 
 }
 
+template<>
+void convertBuffer(std::vector<std::uint8_t> &PngBuffer,
+              int width,
+              int height,
+              int xIndex,
+              int yIndex,
+              vtkm::Vec<vtkm::Float32, 3> &tuple
+             )
+{
+            std::size_t NewPos = (height - yIndex - 1) * (width * 4) + 4 * xIndex;
+        PngBuffer[NewPos + 0] = (unsigned char)(tuple[0] * 255);
+        PngBuffer[NewPos + 1] = (unsigned char)(tuple[1] * 255);
+        PngBuffer[NewPos + 2] = (unsigned char)(tuple[2] * 255);
+        PngBuffer[NewPos + 3] = 255;
+
+}
+
 template<typename ArrayType>
 void convertPng(ArrayType &array,int width,int height, std::vector<std::uint8_t> &ImageBuffer)
 {    
