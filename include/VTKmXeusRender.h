@@ -54,7 +54,7 @@ public:
                 MapperType &mapper,
                 CanvasType &canvas,
                 vtkm::cont::ColorTable &colorTable,
-                std::string &fieldNm)
+                std::string fieldNm)
     {
         using V3 = vtkm::rendering::View3D;
 
@@ -86,16 +86,16 @@ public:
                 MapperType &mapper,
                 CanvasType &canvas,
                 vtkm::cont::ColorTable &colorTable,
-                std::string &fieldNm)
+                std::string fieldNm)
     {
         Render(ds, mapper, canvas, colorTable, fieldNm);
         auto png = convertPng(canvas);
         displayImage = std::make_unique<im::image>(im::image(png));
-        xcpp::display(displayImage, id, !first);        
+        xcpp::display(*displayImage, id, !first);        
         first = false;
     }
     void Display(vtkm::cont::DataSet &ds,
-                std::string &fieldNm)
+                std::string fieldNm)
     {
         using M = vtkm::rendering::MapperRayTracer;
         using C = vtkm::rendering::CanvasRayTracer;
@@ -105,6 +105,19 @@ public:
         M mapper;
         C canvas(512, 512);
         Display<M,C>(ds, mapper, canvas, colorTable, fieldNm);
+    }
+
+	template<typename CanvasType>	
+    void Display(vtkm::cont::DataSet &ds,
+				CanvasType &canvas,
+                std::string fieldNm)
+    {
+        using M = vtkm::rendering::MapperRayTracer;
+
+        vtkm::cont::ColorTable colorTable("inferno");
+
+        M mapper;
+        Display<M,CanvasType>(ds, mapper, canvas, colorTable, fieldNm);
     }
 
     template<typename ArrayType>
